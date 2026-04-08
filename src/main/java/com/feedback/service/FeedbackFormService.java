@@ -4,6 +4,7 @@ import com.feedback.dto.FormCreateRequest;
 import com.feedback.entity.FeedbackForm;
 import com.feedback.entity.FormField;
 import com.feedback.repository.FeedbackFormRepository;
+import com.feedback.repository.FeedbackSubmissionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,15 @@ public class FeedbackFormService {
     private static final Logger log = LoggerFactory.getLogger(FeedbackFormService.class);
 
     private final FeedbackFormRepository formRepository;
+    private final FeedbackSubmissionRepository submissionRepository;
     private final FormPublicationNotificationService formPublicationNotificationService;
 
     public FeedbackFormService(
             FeedbackFormRepository formRepository,
+            FeedbackSubmissionRepository submissionRepository,
             FormPublicationNotificationService formPublicationNotificationService) {
         this.formRepository = formRepository;
+        this.submissionRepository = submissionRepository;
         this.formPublicationNotificationService = formPublicationNotificationService;
     }
 
@@ -77,5 +81,11 @@ public class FeedbackFormService {
 
     public void deleteForm(String id) {
         formRepository.deleteById(id);
+    }
+
+    public void resetAllData() {
+        log.warn("SYSTEM RESET REQUESTED: Deleting all forms and submissions.");
+        submissionRepository.deleteAll();
+        formRepository.deleteAll();
     }
 }

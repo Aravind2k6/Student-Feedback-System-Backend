@@ -26,8 +26,16 @@ public class FeedbackSubmissionResponse {
         response.id = submission.getId();
         response.submissionKey = submission.getSubmissionKey();
         response.formId = submission.getFormId();
-        response.studentId = submission.getStudent().getId();
-        response.studentName = submission.getStudent().getName();
+        
+        // Null-safe student access to prevent 500 errors on orphaned submissions
+        if (submission.getStudent() != null) {
+            response.studentId = submission.getStudent().getId();
+            response.studentName = submission.getStudent().getName();
+        } else {
+            response.studentId = null;
+            response.studentName = "Deleted/Unknown Student";
+        }
+
         response.course = submission.getCourse();
         response.instructor = submission.getInstructor();
         response.rating = submission.getOverallRating();

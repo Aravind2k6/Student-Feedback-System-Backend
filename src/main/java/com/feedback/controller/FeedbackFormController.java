@@ -39,4 +39,10 @@ public class FeedbackFormController {
         formService.deleteForm(id);
         return new MessageResponse("Form deleted successfully");
     }
+
+    @DeleteMapping("/reset-all")
+    public MessageResponse resetAllData() {
+        formService.resetAllData();
+        return new MessageResponse("System reset successful. All forms and submissions have been cleared.");
+    }
 }
