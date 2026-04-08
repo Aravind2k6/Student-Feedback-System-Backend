@@ -22,4 +22,4 @@ COPY --from=build /app/target/student-feedback-backend-1.0.0.jar app.jar
 EXPOSE 8080
 
 # Run the app dynamically binding the port Render gives us, with memory limits for the 512MB RAM available
-ENTRYPOINT ["sh", "-c", "java -Xmx300m -Xms300m -Dserver.port=${PORT:-8080} -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Xmx300m -Xms300m -Dserver.port=${PORT:-8080} -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-render} -jar app.jar"]

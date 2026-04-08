@@ -7,6 +7,7 @@ import com.feedback.repository.PasswordResetTokenRepository;
 import com.feedback.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@ConditionalOnProperty(name = "app.database.maintenance.enabled", havingValue = "true", matchIfMissing = true)
 public class DatabaseMaintenanceRunner implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DatabaseMaintenanceRunner.class);

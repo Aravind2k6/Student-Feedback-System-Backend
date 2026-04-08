@@ -3,9 +3,7 @@ package com.feedback.service;
 import com.feedback.dto.FormCreateRequest;
 import com.feedback.entity.FeedbackForm;
 import com.feedback.entity.FormField;
-import com.feedback.entity.User;
 import com.feedback.repository.FeedbackFormRepository;
-import com.feedback.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,19 +18,13 @@ public class FeedbackFormService {
     private static final Logger log = LoggerFactory.getLogger(FeedbackFormService.class);
 
     private final FeedbackFormRepository formRepository;
-    private final NotificationService notificationService;
-    private final EmailService emailService;
-    private final UserRepository userRepository;
+    private final FormPublicationNotificationService formPublicationNotificationService;
 
     public FeedbackFormService(
             FeedbackFormRepository formRepository,
-            NotificationService notificationService,
-            EmailService emailService,
-            UserRepository userRepository) {
+            FormPublicationNotificationService formPublicationNotificationService) {
         this.formRepository = formRepository;
-        this.notificationService = notificationService;
-        this.emailService = emailService;
-        this.userRepository = userRepository;
+        this.formPublicationNotificationService = formPublicationNotificationService;
     }
 
     public List<FeedbackForm> getAllForms() {
@@ -75,17 +67,9 @@ public class FeedbackFormService {
         form.setFields(fields);
         FeedbackForm saved = formRepository.save(form);
 
-        // Broadcast notification
         if (saved.isPublished()) {
-            notificationService.broadcast("new_campaign",
-                    "New feedback form published: \"" + saved.getTitle() + "\"",
-                    "{\"formId\": \"" + saved.getId() + "\"}");
-            int delivered = emailService.sendFormPublishedEmail(
-                    userRepository.findByRole(User.Role.student).stream()
-                            .map(User::getEmail)
-                            .toList(),
-                    saved);
-            log.info("Sent {} feedback launch email(s) for form {}.", delivered, saved.getId());
+            formPublicationNotificationService.dispatchPublishedFormNotifications(saved);
+            log.info("Queued publication notifications for form {}.", saved.getId());
         }
 
         return saved;

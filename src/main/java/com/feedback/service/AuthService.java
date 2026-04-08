@@ -4,8 +4,11 @@ import com.feedback.dto.LoginRequest;
 import com.feedback.dto.RegisterRequest;
 import com.feedback.entity.PasswordResetToken;
 import com.feedback.entity.User;
+import com.feedback.exception.EmailDeliveryException;
 import com.feedback.repository.PasswordResetTokenRepository;
 import com.feedback.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +19,8 @@ import java.util.UUID;
 
 @Service
 public class AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
@@ -88,8 +93,10 @@ public class AuthService {
         passwordResetTokenRepository.deleteByExpiresAtBefore(LocalDateTime.now());
 
         String cleanEmail = email.trim().toLowerCase();
+        log.info("Forgot password requested for email={}", cleanEmail);
         Optional<User> userOpt = userRepository.findByEmail(cleanEmail);
         if (userOpt.isEmpty()) {
+            log.info("No account found for forgot password email={}", cleanEmail);
             return;
         }
 
@@ -103,7 +110,12 @@ public class AuthService {
         token.setExpiresAt(LocalDateTime.now().plusHours(1));
         passwordResetTokenRepository.save(token);
 
-        emailService.sendResetEmail(cleanEmail, token.getToken());
+        log.info("Created password reset token for userId={} email={}", user.getId(), cleanEmail);
+        boolean delivered = emailService.sendResetEmail(cleanEmail, token.getToken());
+        log.info("Password reset email delivery status for userId={} email={} delivered={}", user.getId(), cleanEmail, delivered);
+        if (!delivered) {
+            throw new EmailDeliveryException("We could not send the reset email right now. Please try again later.");
+        }
         notificationService.notifyUser(
                 user.getId(),
                 "security",

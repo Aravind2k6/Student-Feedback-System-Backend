@@ -149,7 +149,10 @@ public class EmailService {
             log.info("Email sent successfully to {}", recipient);
             return true;
         } catch (Exception ex) {
-            log.error("Failed to send email to {}: {}", recipient, ex.getMessage());
+            log.error("Failed to send email to {}: [{}] {}", recipient, ex.getClass().getSimpleName(), ex.getMessage());
+            if (important) {
+                log.error("Full troubleshooting trace for email to {}:", recipient, ex);
+            }
             return false;
         }
     }

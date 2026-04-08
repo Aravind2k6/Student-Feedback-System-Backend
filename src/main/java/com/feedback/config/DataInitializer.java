@@ -9,6 +9,7 @@ import com.feedback.repository.FeedbackFormRepository;
 import com.feedback.repository.NotificationRepository;
 import com.feedback.repository.UserRepository;
 import com.feedback.service.NotificationService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ import java.util.List;
 public class DataInitializer {
 
     @Bean
+    @ConditionalOnProperty(name = "app.bootstrap.seed.enabled", havingValue = "true", matchIfMissing = true)
     public CommandLineRunner seedData(
             UserRepository userRepo,
             CourseRepository courseRepo,
