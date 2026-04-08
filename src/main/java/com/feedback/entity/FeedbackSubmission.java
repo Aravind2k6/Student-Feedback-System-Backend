@@ -13,7 +13,7 @@ public class FeedbackSubmission {
     private Long id;
 
     // Unique submission key used to prevent duplicate submissions
-    // Pattern: "fb-<formId>-<course>-<instructor>"
+    // Pattern: "fb-<studentId>-<formId>-<course>-<instructor>"
     @Column(nullable = false, unique = true)
     private String submissionKey;
 
